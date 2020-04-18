@@ -1,0 +1,10 @@
+.ImageCard,.VideoCard {
+    padding: 5px;
+    border: 1px solid #eee;
+    margin: 2px;
+    min-width: 180px;
+    background-color: #eee;
+}
+.ImageCard img {
+    height: 100%;
+}
