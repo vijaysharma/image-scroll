@@ -52,7 +52,7 @@ const App = () => {
     if (imageCount > prevCount && prevCount > 0) {
       setLoadMore(true);
       getImagesArray(
-        4,
+        10,
         IMAGE_APIS,
         imagesArray
       ).then(data => {
@@ -81,7 +81,7 @@ const App = () => {
 
 
   const imageWrapper = imagesArray && imagesArray.length < 1 ? <Loader/> :
-    <ImageWrapper imagesArray={imagesArray} showVideo={false}/>
+    <ImageWrapper imagesArray={imagesArray} />
 
   return (
     <div className={classes.App}>
