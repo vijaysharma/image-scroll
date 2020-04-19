@@ -1,17 +1,17 @@
 import React from "react";
 import * as classes from './ImageCard.module.css';
 
-const ImageCard = ({url, height}) => {
+const ImageCard = ({url, showVideo = false}) => {
   const type = (/\.(mp4|webm|ogg)$/gi).test(url) ? 'video' : 'image';
   const image = (
-    <div className={classes.ImageCard} style={{height: `${height}px`}}>
+    <div className={classes.ImageCard}>
       <img src={url} width='auto' alt='Pet'/>
     </div>
   )
-  const video = (
-    <div className={classes.VideoCard} style={{height: `${height}px`}}>
+  const video = showVideo && (
+    <div className={classes.VideoCard}>
       <video height="100%" autoPlay loop>
-        <source src={url} />
+        <source src={url}/>
         Your browser does not support the video tag.
       </video>
     </div>

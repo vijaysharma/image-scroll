@@ -1,15 +1,21 @@
 import React, {useEffect, useState} from 'react';
-import './App.css';
+import * as classes from './App.module.css';
 import ImageWrapper from "./container/ImageWrapper/ImageWrapper";
-
+import throttle from "./utils/throttle";
+import Loader from "./components/Loader/Loader";
+import Logo from './assets/logo.png';
 
 const IMAGE_APIS = ['https://random.dog/woof.json', 'https://aws.random.cat/meow'];
 
 const App = () => {
-  let initialQuantity = Math.ceil(document.documentElement.clientHeight / 180 * document.documentElement.clientWidth / 220);
+
+  let initialQuantity = Math.ceil(document.documentElement.clientHeight * document.documentElement.clientWidth / 40000);
   const [imagesArray, setImagesArray] = useState([]);
   const [imageCount, setImageCount] = useState(initialQuantity);
   const [prevCount, setPrevCount] = useState(0);
+  const [lastScrollTop, setLastScrollTop] = useState(0);
+  const [loadMore, setLoadMore] = useState(false);
+
   const getImagesArray = (quantity, apis, array = []) => {
     if (!quantity || quantity < 1) {
       return;
@@ -26,64 +32,67 @@ const App = () => {
     return Promise.all(fetchPromises).then(res => {
       const files = res.map(r => r['file'] ? r['file'] : r['url'])
       return [...new Set([...array, ...files])]
-    })
+    }).catch(error => console.log('Promise All Error => ', error))
+
   }
+
   useEffect(() => {
-    if (!(imagesArray.length > imageCount)) {
+    if (!(imagesArray.length > 0)) {
       getImagesArray(
-        imageCount,
+        initialQuantity,
         IMAGE_APIS,
         imagesArray
       ).then(data => {
         setImagesArray(data);
+      })
+    }
+  }, [])
+
+  useEffect(() => {
+    if (imageCount > prevCount && prevCount > 0) {
+      setLoadMore(true);
+      getImagesArray(
+        4,
+        IMAGE_APIS,
+        imagesArray
+      ).then(data => {
+        setImagesArray(data);
+        setLoadMore(false)
       })
     }
   }, [imageCount])
 
-  const debounce = (func, wait, immediate) => {
-    let timeout;
-    return function () {
-      let context = this, args = arguments;
-      let later = function () {
-        timeout = null;
-        if (!immediate) func.apply(context, args);
-      };
-      let callNow = immediate && !timeout;
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-      if (callNow) func.apply(context, args);
-    };
-  };
 
-  const debouncedScrollHandler = debounce(() => {
-    if (document.documentElement.offsetHeight - window.innerHeight - document.documentElement.scrollTop
-      < 10) {
+  const throttledScrollHandler = throttle(() => {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    if (scrollTop > lastScrollTop) {
       setPrevCount(imageCount);
-      setImageCount(imageCount + 20)
+      setImageCount(imageCount + 4)
     }
-  }, 2000)
-
-  window.addEventListener('scroll', debouncedScrollHandler);
+    setLastScrollTop(scrollTop <= 0 ? 0 : scrollTop);
+  }, 100)
 
   useEffect(() => {
-    if (imageCount > prevCount) {
-      console.log('prevCount', prevCount);
-      console.log('imageCount', imageCount);
-      getImagesArray(
-        20,
-        IMAGE_APIS,
-        imagesArray
-      ).then(data => {
-        setImagesArray(data);
-      })
+    window.addEventListener('scroll', throttledScrollHandler);
+    return () => {
+      window.removeEventListener('scroll', throttledScrollHandler)
     }
-  }, [prevCount, imageCount])
+  }, [imageCount, lastScrollTop])
 
-  const imageWrapper = imagesArray.length < 1 ? <h1>Loading ...</h1> : <ImageWrapper imagesArray={imagesArray} />
+
+  const imageWrapper = imagesArray && imagesArray.length < 1 ? <Loader/> :
+    <ImageWrapper imagesArray={imagesArray} showVideo={false}/>
+
   return (
-    <div className="App">
-      {imageWrapper}
-      <p>loading...</p>
+    <div className={classes.App}>
+      <header className={classes.Header}>
+        <img src={Logo} alt="Animals Ahoy Logo"/>
+        <h1>Animals Ahoy</h1>
+      </header>
+      <div className={classes.ImageWrapper}>
+        {imageWrapper}
+      </div>
+      {loadMore && <Loader/>}
     </div>
   );
 }

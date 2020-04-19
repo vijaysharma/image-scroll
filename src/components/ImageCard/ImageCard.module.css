@@ -1,10 +1,20 @@
 .ImageCard,.VideoCard {
-    padding: 5px;
-    border: 1px solid #eee;
-    margin: 2px;
-    min-width: 180px;
-    background-color: #eee;
+    padding: 1rem;
+    border: 1px solid #f4e5d1;
+    margin: .5rem;
+    min-width: 24rem;
+    background-color: #f4e5d1;
+    height: 24rem;
 }
 .ImageCard img {
     height: 100%;
+}
+
+@media only screen and (max-width: 540px) {
+    .ImageCard,.VideoCard {
+        min-width: 100%;
+    }
+    .ImageCard img {
+        max-width: 100%;
+    }
 }

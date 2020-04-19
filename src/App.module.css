@@ -1,0 +1,21 @@
+.App {
+  text-align: center;
+  padding-bottom: 16rem;
+}
+
+.Header {
+  padding: 1rem;
+}
+
+.Header img {
+  height: 14rem;
+}
+.Header h1 {
+  font-family: 'Pacifico', cursive;
+  font-size: 4rem;
+  margin: 0;
+  color: #3d496f;
+}
+.ImageWrapper {
+  padding: 2rem 4rem;
+}
